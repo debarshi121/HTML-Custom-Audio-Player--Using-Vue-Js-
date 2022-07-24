@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<link rel="stylesheet" href="style.css" />
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/0.5.14/hls.min.js" integrity="sha512-js37JxjD6gtmJ3N2Qzl9vQm4wcmTilFffk0nTSKzgr3p6aitg73LR205203wTzCCC/NZYO2TAxSa0Lr2VMLQvQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	</head>
+	<body>
+		<div id="app">
+			<audio ref="player" src="song.mp3" controlsList="nodownload noplaybackrate"></audio>
+			<div class="max-w-screen-xl mx-auto rounded bg-gray-100 relative mt-20">
+				<input type="range" ref="seekbar" :value="seekbar.value" @change="seek()" :max="currentSong.duration" class="seek-bar h-1 absolute top-0" />
+				<div class="grid grid-cols-3 p-2 w-100">
+					<div class="flex gap-2">
+						<img src="https://picsum.photos/seed/picsum/200/300" class="w-10 h-10 rounded" />
+						<div class="flex flex-col">
+							<span class="text-sm">{{ currentSong.title }}</span>
+							<span class="text-gray-500 text-xs">{{ currentSong.subtitle }}</span>
+						</div>
+					</div>
+					<div class="flex gap-4 items-center justify-center">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+						</svg>
+						<svg v-if="status=='pause'" @click="play()" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 cursor-pointer" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+						</svg>
+						<svg v-if="status=='play'" @click="pause()" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 cursor-pointer" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+						</svg>
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+						</svg>
+					</div>
+					<div class="flex items-center gap-4 justify-end">
+						<div>{{ currentTime }} / {{ formatTime(currentSong.duration) }}</div>
+						<div class="flex gap-1 items-center">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 cursor-pointer" viewBox="0 0 20 20" fill="currentColor">
+								<path
+									fill-rule="evenodd"
+									d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"
+									clip-rule="evenodd"
+								/>
+							</svg>
+							<input type="range" ref="volumebar" @change="changeVolume()" :value="currentVolume" step="0.01" min="0" max="1" class="volume-bar w-16" />
+						</div>
+						<div>
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+							</svg>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+			new Vue({
+				el: "#app",
+				data() {
+					return {
+						status: "pause",
+						currentSong: {
+							title: "Hymn for the weekend",
+							subtitle: "Coldplay",
+							duration: 260,
+						},
+						seekbar: {
+							value: 0,
+						},
+						currentTime : '00:00',
+						currentVolume: 1
+					};
+				},
+				methods: {
+					play() {
+						this.$refs.player.play();
+						this.status = "play";
+					},
+					pause() {
+						this.$refs.player.pause();
+						this.status = "pause";
+					},
+					seek() {
+						this.$refs.player.currentTime = this.$refs.seekbar.value;
+					},
+					changeVolume(){
+						this.$refs.player.volume = this.$refs.volumebar.value
+						this.currentVolume = this.$refs.volumebar.value
+					},
+					formatTime(time) {
+						let min = Math.floor(time / 60);
+						if (min < 10) {
+							min = `0${min}`;
+						}
+						let sec = Math.floor(time % 60);
+						if (sec < 10) {
+							sec = `0${sec}`;
+						}
+						return `${min}:${sec}`;
+					},
+				},
+				mounted() {
+					setInterval(() => {
+						this.seekbar.value = this.$refs.player.currentTime;
+						this.currentTime = this.formatTime(this.$refs.player.currentTime)
+					}, 500);
+				},
+			});
+		</script>
+	</body>
+</html>
