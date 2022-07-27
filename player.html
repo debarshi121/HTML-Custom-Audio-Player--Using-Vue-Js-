@@ -16,15 +16,15 @@
 			<div class="max-w-screen-xl mx-auto rounded bg-gray-100 relative mt-20">
 				<input type="range" ref="seekbar" :value="seekbar.value" @change="seek()" :max="currentSong.duration" class="seek-bar h-1 absolute top-0" />
 				<div class="grid grid-cols-3 p-2 w-100">
-					<div class="flex gap-2">
+					<div class="flex gap-2 min-w-full">
 						<img src="https://picsum.photos/seed/picsum/200/300" class="w-10 h-10 rounded" />
-						<div class="flex flex-col">
-							<span class="text-sm">{{ currentSong.title }}</span>
-							<span class="text-gray-500 text-xs">{{ currentSong.subtitle }}</span>
+						<div class="flex flex-col truncate">
+							<span class="text-sm truncate">{{ currentSong.title }}</span>
+							<span class="text-gray-500 text-xs truncate">{{ currentSong.subtitle }}</span>
 						</div>
 					</div>
 					<div class="flex gap-4 items-center justify-center">
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
 						</svg>
 						<svg v-if="status=='pause'" @click="play()" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 cursor-pointer" viewBox="0 0 20 20" fill="currentColor">
@@ -33,13 +33,13 @@
 						<svg v-if="status=='play'" @click="pause()" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 cursor-pointer" viewBox="0 0 20 20" fill="currentColor">
 							<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
 						</svg>
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
 						</svg>
 					</div>
 					<div class="flex items-center gap-4 justify-end">
-						<div>{{ currentTime }} / {{ formatTime(currentSong.duration) }}</div>
-						<div class="flex gap-1 items-center">
+						<div class="hidden md:block">{{ currentTime }} / {{ formatTime(currentSong.duration) }}</div>
+						<div class="gap-1 items-center hidden md:flex">
 							<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 cursor-pointer" viewBox="0 0 20 20" fill="currentColor">
 								<path
 									fill-rule="evenodd"
@@ -47,7 +47,7 @@
 									clip-rule="evenodd"
 								/>
 							</svg>
-							<input type="range" ref="volumebar" @change="changeVolume()" :value="currentVolume" step="0.01" min="0" max="1" class="volume-bar w-16" />
+							<input type="range" class="volume-bar w-16" ref="volumebar" @change="changeVolume()" :value="currentVolume" step="0.01" min="0" max="1"/>
 						</div>
 						<div>
 							<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
